@@ -1,0 +1,4 @@
+gunicorn==19.9.0
+Flask==2.1.1
+selenium==4.10.0
+webdriver-manager
