@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
@@ -9,6 +9,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
+    user_ids = request.args.get('user_ids').split(',')  # カンマ区切りのuser_idを分割
     URL = 'https://tonari-it.com/scraping-test/'
     options = webdriver.ChromeOptions()
     options.add_argument('--no-sandbox')
@@ -19,7 +20,8 @@ def index():
     driver.get(URL)
     driver.implicitly_wait(5)
     element = driver.find_element(By.CSS_SELECTOR, "#hoge")
-    return element.text
+    return jsonify(user_ids)
+    # return element.text
 
 
 if __name__ == "__main__":
