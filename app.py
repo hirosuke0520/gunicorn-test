@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-# from tiktok_scraping import get_tiktok_profile_by_selenium
+from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
@@ -15,8 +15,6 @@ def index():
     if args_user_ids:
         user_ids = args_user_ids.split(',')  # カンマ区切りのuser_idを分割
     
-    # profiles = [get_tiktok_profile_by_selenium(user_id) for user_id in user_ids]
-
     options = webdriver.ChromeOptions()
     options.add_argument('--no-sandbox')
     options.add_argument('--headless')
@@ -26,11 +24,18 @@ def index():
 
     profiles = []
     for user_id in user_ids:
-        URL = 'https://tonari-it.com/scraping-test/'
-        driver.get(URL)
+        url = f"https://www.tiktok.com/@{user_id}"
+        driver.get(url)
         driver.implicitly_wait(5)
-        element = driver.find_element(By.CSS_SELECTOR, "#hoge")
-        profiles.append({user_id: user_id})
+        soup = BeautifulSoup(driver.page_source, 'html.parser')
+        profile_info = {
+            "userId": user_id,
+            # "userSubtitle": get_text_from_elements(soup, "data-e2e", "user-subtitle"),
+            # "followersCount": get_text_from_elements(soup, "data-e2e", "followers-count"),
+            # "likesCount": get_text_from_elements(soup, "data-e2e", "likes-count"),
+        }
+        
+        profiles.append({user_id: profile_info})
 
     return jsonify(profiles)
 
