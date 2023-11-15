@@ -1,27 +1,19 @@
 from flask import Flask, request, jsonify
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service
+from tiktok_scraping import get_tiktok_profile_by_selenium
 
 app = Flask(__name__)
 
 
 @app.route("/")
 def index():
-    user_ids = request.args.get('user_ids').split(',')  # カンマ区切りのuser_idを分割
-    URL = 'https://tonari-it.com/scraping-test/'
-    options = webdriver.ChromeOptions()
-    options.add_argument('--no-sandbox')
-    options.add_argument('--headless')
-    options.add_argument('--disable-dev-shm-usage')
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=options)
-    driver.get(URL)
-    driver.implicitly_wait(5)
-    element = driver.find_element(By.CSS_SELECTOR, "#hoge")
-    return jsonify(user_ids)
-    # return element.text
+    args_user_ids = request.args.get('user_ids')
+    user_ids = []
+    if args_user_ids:
+        user_ids = args_user_ids.split(',')  # カンマ区切りのuser_idを分割
+    
+    profiles = [get_tiktok_profile_by_selenium(user_id) for user_id in user_ids]
+
+    return jsonify(profiles)
 
 
 if __name__ == "__main__":
